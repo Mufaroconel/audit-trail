@@ -49,3 +49,25 @@ class AuditTrail(models.Model):
 
     def __str__(self):  # Fix the method name from _str_ to __str__
         return f"{self.timestamp} - {self.user.username} - {self.action}"
+
+
+class Notification(models.Model):
+    PRIORITY_CHOICES = [
+        ('high', 'High'),
+        ('medium', 'Medium'),
+        ('low', 'Low')
+    ]
+    
+    title = models.CharField(max_length=200)
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_read = models.BooleanField(default=False)
+    priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default='medium')
+    transaction_id = models.CharField(max_length=100)
+    fraud_probability = models.FloatField()
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.title} - {self.created_at.strftime('%Y-%m-%d %H:%M')}"

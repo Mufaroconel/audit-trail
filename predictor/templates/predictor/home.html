@@ -98,6 +98,14 @@
         <a href="{% url 'import' %}">Import</a>
         <a href="{% url 'transaction_list' %}">History</a>
         <a href="{% url 'logout' %}">Logout</a>
+        <div class="nav-item">
+            <a href="{% url 'notifications' %}" class="nav-link">
+                <i class="fas fa-bell"></i> Notifications
+                {% if unread_notifications_count > 0 %}
+                    <span class="badge badge-danger">{{ unread_notifications_count }}</span>
+                {% endif %}
+            </a>
+        </div>
     </div>
 </div>
 
@@ -111,14 +119,25 @@
     <a href="{% url 'transaction_list' %}">Transaction History</a>
     <a href="#">Previous Predictions</a>
     <a href="{% url 'audittrail' %}">Audittrail</a>
-        <a href="{% url 'client' %}">client dashboard</a>
-
-
+    <a href="{% url 'client' %}">Client Dashboard</a>
 </nav>
 
 <div class="animated-cycles">
     <div class="cycle blue"></div>
     <div class="cycle orange"></div>
 </div>
-</body>
-</html>
+
+<!-- Add this new card for notifications -->
+<div class="container mt-4">
+    <div class="card" style="background-color: #573b8a; color: white; padding: 20px; border-radius: 8px; text-align: center;">
+        <h3>Notifications</h3>
+        <p>You have 
+            <span style="font-weight: bold; color: #ffcc00;">
+                {{ unread_notifications_count }}
+            </span> 
+            unread notifications.
+        </p>
+        <a href="{% url 'notifications' %}" style="color: #fff; text-decoration: underline;">View Notifications</a>
+    </div>
+</div>
+

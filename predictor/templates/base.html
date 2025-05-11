@@ -1,0 +1,9 @@
+<!-- Add this in your navigation bar -->
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'notifications' %}">
+        Notifications
+        {% if unread_notifications_count > 0 %}
+            <span class="badge badge-danger">{{ unread_notifications_count }}</span>
+        {% endif %}
+    </a>
+</li>
