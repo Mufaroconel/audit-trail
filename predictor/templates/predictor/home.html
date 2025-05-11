@@ -1,0 +1,124 @@
+<!-- templates/predictor/home.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Home - Fraud Detection Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Jost', sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: #fff;
+        }
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 30px;
+            background-color: #1f1f3d;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+        .navbar .logo {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #fff;
+        }
+        .navbar .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            margin-left: 20px;
+            font-weight: bold;
+        }
+        .navbar .nav-links a:hover {
+            color: #ffcc00;
+        }
+        header {
+            width: 100%;
+            padding: 20px;
+            background: #2a5298;
+            text-align: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #fff;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        nav {
+            margin: 30px auto;
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+        nav a {
+            padding: 14px 28px;
+            border-radius: 6px;
+            background-color: #573b8a;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        nav a:hover {
+            background-color: #6d44b8;
+        }
+        .animated-cycles {
+            margin-top: 50px;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+        }
+        .cycle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            animation: spin 3s linear infinite;
+        }
+        .blue {
+            background-color: #2196f3;
+        }
+        .orange {
+            background-color: #ff9800;
+            animation-delay: 1.5s;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+<div class="navbar">
+    <div class="logo">FraudGuard</div>
+    <div class="nav-links">
+        <a href="{% url 'home' %}">Home</a>
+        <a href="{% url 'predict' %}">Predict</a>
+        <a href="{% url 'import' %}">Import</a>
+        <a href="{% url 'transaction_list' %}">History</a>
+        <a href="{% url 'logout' %}">Logout</a>
+    </div>
+</div>
+
+<header>
+    Welcome to the Fraud Detection Dashboard
+</header>
+
+<nav>
+    <a href="{% url 'predict' %}">Predict Transaction</a>
+    <a href="{% url 'import' %}">Import Transactions</a>
+    <a href="{% url 'transaction_list' %}">Transaction History</a>
+    <a href="#">Previous Predictions</a>
+    <a href="{% url 'audittrail' %}">Audittrail</a>
+        <a href="{% url 'client' %}">client dashboard</a>
+
+
+</nav>
+
+<div class="animated-cycles">
+    <div class="cycle blue"></div>
+    <div class="cycle orange"></div>
+</div>
+</body>
+</html>

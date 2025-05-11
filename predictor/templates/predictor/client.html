@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Client Dashboard</title>
+    <style>
+        body { font-family: Arial; padding: 30px; background: #f4f4f4; }
+        .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 10px; }
+        input, select { width: 100%; padding: 10px; margin: 10px 0; }
+        button { padding: 10px 20px; background: #28a745; color: white; border: none; }
+        .flash { color: red; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Welcome, {{ client.name }}</h2>
+        <p><strong>Account:</strong> {{ client.user_id }}</p>
+        <p><strong>Current Balance:</strong> ${{ client.balance }}</p>
+
+        {% for message in messages %}
+            <div class="flash">{{ message }}</div>
+        {% endfor %}
+
+        <form method="POST">
+            {% csrf_token %}
+            <label>Transaction Type:</label>
+            <select name="transaction_type" required>
+                <option value="deposit">Deposit</option>
+                <option value="withdraw">Withdraw</option>
+                <option value="transfer">Transfer</option>
+            </select>
+
+            <label>Amount:</label>
+            <input type="number" step="0.01" name="amount" required>
+
+            <label>Recipient (user_id for transfer):</label>
+            <input type="text" name="recipient">
+
+            <button type="submit">Submit Transaction</button>
+        </form>
+    </div>
+</body>
+</html>

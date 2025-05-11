@@ -1,0 +1,108 @@
+<!-- templates/predictor/result.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Prediction Result</title>
+    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Jost', sans-serif;
+            background: linear-gradient(to bottom, #0f0c29, #302b63, #24243e);
+            color: #fff;
+            margin: 0;
+            padding-top: 60px;
+        }
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background-color: #1f1f3d;
+            padding: 10px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+        }
+        .navbar .logo {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #fff;
+        }
+        .navbar .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            margin-left: 20px;
+            font-weight: bold;
+        }
+        .navbar .nav-links a:hover {
+            color: #ffcc00;
+        }
+        .container {
+            background: #1e1e2f;
+            padding: 30px 40px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
+            max-width: 500px;
+            margin: 80px auto 20px;
+        }
+        h2 {
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        .prediction-result {
+            font-size: 20px;
+            font-weight: bold;
+            color: {% if prediction == 1 %}#ff5252{% else %}#00e676{% endif %};
+            margin-bottom: 20px;
+        }
+        .actions a {
+            display: inline-block;
+            margin: 10px 10px;
+            padding: 10px 20px;
+            background-color: #573b8a;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .actions a:hover {
+            background-color: #6d44b8;
+        }
+    </style>
+</head>
+<body>
+<div class="navbar">
+    <div class="logo">FraudGuard</div>
+    <div class="nav-links">
+        <a href="{% url 'home' %}">Home</a>
+        <a href="{% url 'predict' %}">Predict</a>
+        <a href="{% url 'import' %}">Import</a>
+        <a href="{% url 'transaction_list' %}">History</a>
+        <a href="{% url 'logout' %}">Logout</a>
+    </div>
+</div>
+
+<div class="container">
+    <h2>Fraud Prediction Result</h2>
+    <div class="prediction-result">
+        {% if prediction == 1 %}
+            🚨 Fraudulent Transaction Detected
+        {% elif prediction == 0 %}
+            ✅ Transaction is Clean
+        {% else %}
+            {{ prediction }}
+        {% endif %}
+    </div>
+    <div class="actions">
+        <a href="{% url 'predict' %}">Try Another Transaction</a>
+        {% if prediction == 1 %}
+            <a href="#">Quarantine</a>
+            <a href="#">Decline</a>
+            <a href="#">Investigate</a>
+        {% endif %}
+    </div>
+</div>
+</body>
+</html>
