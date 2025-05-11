@@ -409,3 +409,34 @@ def mark_notification_read(request, notification_id):
     notification.save()
     return redirect('notifications')
 
+
+from django.shortcuts import render
+from .models import Transaction
+import pandas as pd
+
+@login_required
+def reports_view(request):
+    # Fetch all transactions
+    transactions = Transaction.objects.all()
+
+    # Convert to DataFrame for analysis
+    df = pd.DataFrame(list(transactions.values()))
+
+    # Perform analysis
+    total_transactions = df.shape[0]
+    total_fraudulent = df[df['is_fraudulent']].shape[0]
+    total_non_fraudulent = total_transactions - total_fraudulent
+    average_amount = df['amount'].mean()
+    fraud_probability_avg = df['fraud_probability'].mean()
+
+    # Prepare context for template
+    context = {
+        'total_transactions': total_transactions,
+        'total_fraudulent': total_fraudulent,
+        'total_non_fraudulent': total_non_fraudulent,
+        'average_amount': average_amount,
+        'fraud_probability_avg': fraud_probability_avg,
+    }
+
+    return render(request, 'predictor/reports.html', context)
+

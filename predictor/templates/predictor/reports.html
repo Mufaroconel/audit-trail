@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction Reports</title>
+    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Jost', sans-serif;
+            background: #f4f4f9;
+            color: #333;
+        }
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 30px;
+            background-color: #1f1f3d;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+        .navbar .logo {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #fff;
+        }
+        .navbar .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            margin-left: 20px;
+            font-weight: bold;
+        }
+        .navbar .nav-links a:hover {
+            color: #ffcc00;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 40px auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            text-align: center;
+            color: #1e3c72;
+            margin-bottom: 30px;
+        }
+        .report-item {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+        }
+        .report-item h3 {
+            margin-bottom: 10px;
+            color: #1e3c72;
+        }
+        .report-item p {
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+        .chart {
+            margin-top: 30px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<div class="navbar">
+    <div class="logo">FraudGuard</div>
+    <div class="nav-links">
+        <a href="{% url 'home' %}">Home</a>
+        <a href="{% url 'predict' %}">Predict</a>
+        <a href="{% url 'import' %}">Import</a>
+        <a href="{% url 'transaction_list' %}">History</a>
+        <a href="{% url 'logout' %}">Logout</a>
+        <a href="{% url 'notifications' %}" class="nav-link">
+            <i class="fas fa-bell"></i> Notifications
+            {% if unread_notifications_count > 0 %}
+                <span class="badge badge-danger">{{ unread_notifications_count }}</span>
+            {% endif %}
+        </a>
+    </div>
+</div>
+
+<div class="container">
+    <h2>Transaction Reports</h2>
+    <div class="report-item">
+        <h3>Total Transactions</h3>
+        <p>{{ total_transactions }}</p>
+    </div>
+    <div class="report-item">
+        <h3>Total Fraudulent Transactions</h3>
+        <p>{{ total_fraudulent }}</p>
+    </div>
+    <div class="report-item">
+        <h3>Total Non-Fraudulent Transactions</h3>
+        <p>{{ total_non_fraudulent }}</p>
+    </div>
+    <div class="report-item">
+        <h3>Average Transaction Amount</h3>
+        <p>${{ average_amount|floatformat:2 }}</p>
+    </div>
+    <div class="report-item">
+        <h3>Average Fraud Probability</h3>
+        <p>{{ fraud_probability_avg|floatformat:2 }}</p>
+    </div>
+    <div class="chart">
+        <!-- Placeholder for future chart integration -->
+        <p>Chart visualization coming soon...</p>
+    </div>
+</div>
+</body>
+</html>

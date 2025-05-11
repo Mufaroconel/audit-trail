@@ -62,11 +62,16 @@
                             <span class="badge badge-{% if notification.priority == 'high' %}danger{% elif notification.priority == 'medium' %}warning{% else %}info{% endif %}">
                                 {{ notification.priority|title }}
                             </span>
-                            {% if not notification.is_read %}
-                                <a href="{% url 'mark_notification_read' notification.id %}" class="btn btn-sm btn-outline-secondary">
-                                    Mark as Read
-                                </a>
-                            {% endif %}
+                            <div>
+                                {% if not notification.is_read %}
+                                    <a href="{% url 'mark_notification_read' notification.id %}" class="btn btn-sm btn-outline-secondary">
+                                        Mark as Read
+                                    </a>
+                                {% endif %}
+                                <button class="btn btn-sm btn-outline-danger" onclick="updateTransactionStatus('{{ notification.transaction_id }}', 'Quarantined')">Quarantine</button>
+                                <button class="btn btn-sm btn-outline-warning" onclick="updateTransactionStatus('{{ notification.transaction_id }}', 'Flagged')">Flag</button>
+                                <button class="btn btn-sm btn-outline-success" onclick="updateTransactionStatus('{{ notification.transaction_id }}', 'Ignored')">Ignore</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -76,5 +81,26 @@
         </div>
     </div>
 </div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    function updateTransactionStatus(transactionId, status) {
+        $.ajax({
+            url: "{% url 'admin_review_transaction_api' transaction_id=0 %}".replace('0', transactionId),
+            method: "POST",
+            data: {
+                status: status,
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            },
+            success: function(response) {
+                alert(response.message);
+                location.reload(); // Reload the page to update the notifications
+            },
+            error: function(xhr) {
+                alert('Error: ' + xhr.responseJSON.message);
+            }
+        });
+    }
+</script>
 </body>
 </html>

@@ -23,5 +23,6 @@ urlpatterns = [
     path('notifications/mark-read/<int:notification_id>/', 
          views.mark_notification_read, 
          name='mark_notification_read'),
+    path('reports/', views.reports_view, name='reports'),
 ]
 
