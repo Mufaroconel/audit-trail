@@ -86,29 +86,41 @@
 
 <div class="container">
     <h2>Transaction Reports</h2>
+    <!-- Removed sections for total transactions, fraudulent transactions, non-fraudulent transactions, average transaction amount, average fraud probability, and the table of all transactions -->
+    <!-- Visualization 1a: Anomaly Score vs. Fraud Probability Scatter Plot -->
     <div class="report-item">
-        <h3>Total Transactions</h3>
-        <p>{{ total_transactions }}</p>
+        <h3>Anomaly Score vs. Fraud Probability</h3>
+        <img src="data:image/png;base64,{{ scatter_plot_url }}" alt="Scatter Plot">
     </div>
+
+    <!-- Visualization 1b: Heatmap of Suspicious Transactions Over Time -->
     <div class="report-item">
-        <h3>Total Fraudulent Transactions</h3>
-        <p>{{ total_fraudulent }}</p>
+        <h3>Heatmap of Suspicious Transactions Over Time</h3>
+        <img src="data:image/png;base64,{{ heatmap_plot_url }}" alt="Heatmap">
     </div>
+
+    <!-- Visualization 1c: Fraudulent vs. Non-Fraudulent Transaction Distribution -->
     <div class="report-item">
-        <h3>Total Non-Fraudulent Transactions</h3>
-        <p>{{ total_non_fraudulent }}</p>
+        <h3>Fraudulent vs. Non-Fraudulent Transaction Distribution</h3>
+        <img src="data:image/png;base64,{{ pie_chart_url }}" alt="Pie Chart">
     </div>
+
+    <!-- Visualization 2a: Time Series of Total Transaction Volume -->
     <div class="report-item">
-        <h3>Average Transaction Amount</h3>
-        <p>${{ average_amount|floatformat:2 }}</p>
+        <h3>Time Series of Total Transaction Volume</h3>
+        <img src="data:image/png;base64,{{ time_series_plot_url }}" alt="Time Series Plot">
     </div>
+
+    <!-- Visualization 2b: Client-Based Sankey Diagram -->
     <div class="report-item">
-        <h3>Average Fraud Probability</h3>
-        <p>{{ fraud_probability_avg|floatformat:2 }}</p>
+        <h3>Client-Based Money Flow</h3>
+        <div>{{ sankey_plot_url|safe }}</div>
     </div>
-    <div class="chart">
-        <!-- Placeholder for future chart integration -->
-        <p>Chart visualization coming soon...</p>
+
+    <!-- Visualization 2c: Box Plot of Transaction Amounts by Transaction Type -->
+    <div class="report-item">
+        <h3>Box Plot of Transaction Amounts by Transaction Type</h3>
+        <img src="data:image/png;base64,{{ box_plot_url }}" alt="Box Plot">
     </div>
 </div>
 </body>

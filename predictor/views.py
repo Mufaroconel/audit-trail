@@ -413,6 +413,14 @@ def mark_notification_read(request, notification_id):
 from django.shortcuts import render
 from .models import Transaction
 import pandas as pd
+import matplotlib
+matplotlib.use('Agg')  # Use a non-GUI backend
+import matplotlib.pyplot as plt
+import seaborn as sns
+import io
+import base64
+from django.http import HttpResponse
+import plotly.graph_objects as go
 
 @login_required
 def reports_view(request):
@@ -429,6 +437,82 @@ def reports_view(request):
     average_amount = df['amount'].mean()
     fraud_probability_avg = df['fraud_probability'].mean()
 
+    # Visualization 1a: Anomaly Score vs. Fraud Probability Scatter Plot
+    plt.figure(figsize=(10, 6))
+    sns.scatterplot(data=df, x='anomaly_score', y='fraud_probability', hue='is_fraudulent')
+    plt.title('Anomaly Score vs. Fraud Probability')
+    scatter_plot = io.BytesIO()
+    plt.savefig(scatter_plot, format='png')
+    scatter_plot.seek(0)
+    scatter_plot_url = base64.b64encode(scatter_plot.getvalue()).decode()
+
+    # Visualization 1b: Heatmap of Suspicious Transactions Over Time
+    # Convert timestamp to timezone-naive before grouping
+    df['timestamp_naive'] = df['timestamp'].dt.tz_localize(None)
+    df['time_group'] = df['timestamp_naive'].dt.to_period('D')  # Group by day
+    heatmap_data = df.pivot_table(index='time_group', columns='suspicious_flag', aggfunc='size', fill_value=0)
+    plt.figure(figsize=(12, 8))
+    sns.heatmap(heatmap_data, cmap='YlGnBu', annot=True, fmt='d')
+    plt.title('Heatmap of Suspicious Transactions Over Time')
+    heatmap_plot = io.BytesIO()
+    plt.savefig(heatmap_plot, format='png')
+    heatmap_plot.seek(0)
+    heatmap_plot_url = base64.b64encode(heatmap_plot.getvalue()).decode()
+
+    # Visualization 1c: Fraudulent vs. Non-Fraudulent Transaction Distribution
+    plt.figure(figsize=(8, 8))
+    df['is_fraudulent'].value_counts().plot.pie(autopct='%1.1f%%', startangle=90, colors=['#ff9999','#66b3ff'])
+    plt.title('Fraudulent vs. Non-Fraudulent Transaction Distribution')
+    pie_chart = io.BytesIO()
+    plt.savefig(pie_chart, format='png')
+    pie_chart.seek(0)
+    pie_chart_url = base64.b64encode(pie_chart.getvalue()).decode()
+
+    # Visualization 2a: Time Series of Total Transaction Volume
+    plt.figure(figsize=(12, 6))
+    df['timestamp_naive'] = df['timestamp'].dt.tz_localize(None)
+    df.set_index('timestamp_naive', inplace=True)
+    ax = df.groupby([pd.Grouper(freq='D'), 'transaction_type'])['amount'].sum().unstack().plot()
+    plt.title('Time Series of Total Transaction Volume')
+    plt.xlabel('Date')
+    plt.ylabel('Total Amount')
+    plt.legend(title='Transaction Type')
+
+    # Adjust x-axis limits to avoid identical limits
+    left, right = ax.get_xlim()
+    if left == right:
+        ax.set_xlim(left - 1, right + 1)
+
+    time_series_plot = io.BytesIO()
+    plt.savefig(time_series_plot, format='png')
+    time_series_plot.seek(0)
+    time_series_plot_url = base64.b64encode(time_series_plot.getvalue()).decode()
+
+    # Visualization 2b: Client-Based Sankey Diagram
+    sankey_fig = go.Figure(data=[go.Sankey(
+        node=dict(
+            pad=15,
+            thickness=20,
+            line=dict(color="black", width=0.5),
+            label=df['client_id'].astype(str).tolist() + df['recipient_id'].astype(str).tolist()
+        ),
+        link=dict(
+            source=df['client_id'].astype(str).tolist(),
+            target=df['recipient_id'].astype(str).tolist(),
+            value=df['amount'].tolist()
+        ))])
+    sankey_fig.update_layout(title_text="Client-Based Money Flow", font_size=10)
+    sankey_plot_url = sankey_fig.to_html(full_html=False)
+
+    # Visualization 2c: Box Plot of Transaction Amounts by Transaction Type
+    plt.figure(figsize=(10, 6))
+    sns.boxplot(data=df, x='transaction_type', y='amount')
+    plt.title('Box Plot of Transaction Amounts by Transaction Type')
+    box_plot = io.BytesIO()
+    plt.savefig(box_plot, format='png')
+    box_plot.seek(0)
+    box_plot_url = base64.b64encode(box_plot.getvalue()).decode()
+
     # Prepare context for template
     context = {
         'total_transactions': total_transactions,
@@ -436,6 +520,10 @@ def reports_view(request):
         'total_non_fraudulent': total_non_fraudulent,
         'average_amount': average_amount,
         'fraud_probability_avg': fraud_probability_avg,
+        'transactions': transactions,  # Ensure transactions are included in the context
+        'scatter_plot_url': scatter_plot_url,
+        'heatmap_plot_url': heatmap_plot_url,
+        'pie_chart_url': pie_chart_url,
     }
 
     return render(request, 'predictor/reports.html', context)
