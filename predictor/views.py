@@ -580,8 +580,8 @@ def reports_view(request):
         'heatmap_plot_url': heatmap_plot_url,
         'pie_chart_url': pie_plot_url,
         'fraud_balance_plot_url': balance_plot_url,
-        'risk_hist_url': risk_hist_url,
-        'top_clients_url': top_clients_url
+        'risk_score_histogram_url': risk_hist_url,
+        'top_clients_bar_chart_url': top_clients_url
     })
 
     return render(request, 'predictor/reports.html', context)
