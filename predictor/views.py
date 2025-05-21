@@ -437,56 +437,40 @@ def reports_view(request):
     average_amount = df['amount'].mean()
     fraud_probability_avg = df['fraud_probability'].mean()
 
-    # Visualization 1a: Anomaly Score vs. Fraud Probability Scatter Plot
-    plt.figure(figsize=(10, 6))
-    sns.scatterplot(data=df, x='anomaly_score', y='fraud_probability', hue='is_fraudulent')
-    plt.title('Anomaly Score vs. Fraud Probability')
-    scatter_plot = io.BytesIO()
-    plt.savefig(scatter_plot, format='png')
-    scatter_plot.seek(0)
-    scatter_plot_url = base64.b64encode(scatter_plot.getvalue()).decode()
+    # Create time_group directly from timestamp
+    df['time_group'] = pd.to_datetime(df['timestamp']).dt.to_period('D')
 
-    # Visualization 1b: Heatmap of Suspicious Transactions Over Time
-    # Convert timestamp to timezone-naive before grouping
-    df['timestamp_naive'] = df['timestamp'].dt.tz_localize(None)
-    df['time_group'] = df['timestamp_naive'].dt.to_period('D')  # Group by day
-    heatmap_data = df.pivot_table(index='time_group', columns='suspicious_flag', aggfunc='size', fill_value=0)
-    plt.figure(figsize=(12, 8))
-    sns.heatmap(heatmap_data, cmap='YlGnBu', annot=True, fmt='d')
-    plt.title('Heatmap of Suspicious Transactions Over Time')
-    heatmap_plot = io.BytesIO()
-    plt.savefig(heatmap_plot, format='png')
-    heatmap_plot.seek(0)
-    heatmap_plot_url = base64.b64encode(heatmap_plot.getvalue()).decode()
-
-    # Visualization 1c: Fraudulent vs. Non-Fraudulent Transaction Distribution
-    plt.figure(figsize=(8, 8))
-    df['is_fraudulent'].value_counts().plot.pie(autopct='%1.1f%%', startangle=90, colors=['#ff9999','#66b3ff'])
-    plt.title('Fraudulent vs. Non-Fraudulent Transaction Distribution')
-    pie_chart = io.BytesIO()
-    plt.savefig(pie_chart, format='png')
-    pie_chart.seek(0)
-    pie_chart_url = base64.b64encode(pie_chart.getvalue()).decode()
-
-    # Visualization 2a: Time Series of Total Transaction Volume
+    # Time Series Plot
     plt.figure(figsize=(12, 6))
-    df['timestamp_naive'] = df['timestamp'].dt.tz_localize(None)
-    df.set_index('timestamp_naive', inplace=True)
-    ax = df.groupby([pd.Grouper(freq='D'), 'transaction_type'])['amount'].sum().unstack().plot()
+    time_series_df = df.copy()
+    time_series_df['timestamp'] = pd.to_datetime(time_series_df['timestamp'])
+    time_series_df.set_index('timestamp', inplace=True)
+    ax = time_series_df.groupby([pd.Grouper(freq='D'), 'transaction_type'])['amount'].sum().unstack().plot()
     plt.title('Time Series of Total Transaction Volume')
     plt.xlabel('Date')
     plt.ylabel('Total Amount')
     plt.legend(title='Transaction Type')
 
-    # Adjust x-axis limits to avoid identical limits
+    # Adjust x-axis limits
     left, right = ax.get_xlim()
     if left == right:
         ax.set_xlim(left - 1, right + 1)
 
     time_series_plot = io.BytesIO()
     plt.savefig(time_series_plot, format='png')
+    plt.close()
     time_series_plot.seek(0)
     time_series_plot_url = base64.b64encode(time_series_plot.getvalue()).decode()
+
+    # Box Plot
+    plt.figure(figsize=(10, 6))
+    sns.boxplot(data=df, x='transaction_type', y='amount')
+    plt.title('Box Plot of Transaction Amounts by Transaction Type')
+    box_plot = io.BytesIO()
+    plt.savefig(box_plot, format='png')
+    plt.close()  # Close the figure after saving
+    box_plot.seek(0)
+    box_plot_url = base64.b64encode(box_plot.getvalue()).decode()
 
     # Visualization 2b: Client-Based Sankey Diagram
     sankey_fig = go.Figure(data=[go.Sankey(
@@ -521,10 +505,83 @@ def reports_view(request):
         'average_amount': average_amount,
         'fraud_probability_avg': fraud_probability_avg,
         'transactions': transactions,  # Ensure transactions are included in the context
-        'scatter_plot_url': scatter_plot_url,
-        'heatmap_plot_url': heatmap_plot_url,
-        'pie_chart_url': pie_chart_url,
+        'time_series_plot_url': time_series_plot_url,
+        'sankey_plot_url': sankey_plot_url,
+        'box_plot_url': box_plot_url,
     }
 
-    return render(request, 'predictor/reports.html', context)
 
+    # Anomaly Score vs. Fraud Probability Scatter Plot
+    plt.figure(figsize=(10, 6))
+    sns.scatterplot(data=df, x='anomaly_score', y='fraud_probability', hue='is_fraudulent')
+    plt.title('Anomaly Score vs. Fraud Probability')
+    scatter_plot = io.BytesIO()
+    plt.savefig(scatter_plot, format='png')
+    scatter_plot.seek(0)
+    scatter_plot_url = base64.b64encode(scatter_plot.getvalue()).decode()
+
+    # Heatmap of Suspicious Transactions Over Time
+    plt.figure(figsize=(12, 8))
+    heatmap_data = df.pivot_table(index='time_group', columns='suspicious_flag', aggfunc='size', fill_value=0)
+    sns.heatmap(heatmap_data, cmap='YlGnBu', annot=True, fmt='d')
+    plt.title('Heatmap of Suspicious Transactions Over Time')
+    heatmap_plot = io.BytesIO()
+    plt.savefig(heatmap_plot, format='png')
+    plt.close()
+    heatmap_plot.seek(0)
+    heatmap_plot_url = base64.b64encode(heatmap_plot.getvalue()).decode()
+
+    # Fraudulent vs. Non-Fraudulent Transaction Distribution Pie Chart
+    plt.figure(figsize=(8, 8))
+    fraud_dist = df['is_fraudulent'].value_counts()
+    plt.pie(fraud_dist, labels=['Non-Fraudulent', 'Fraudulent'], autopct='%1.1f%%')
+    plt.title('Fraudulent vs. Non-Fraudulent Transaction Distribution')
+    pie_plot = io.BytesIO()
+    plt.savefig(pie_plot, format='png')
+    plt.close()
+    pie_plot.seek(0)
+    pie_plot_url = base64.b64encode(pie_plot.getvalue()).decode()
+
+    # Account Balance Before and After Fraud Plot
+    plt.figure(figsize=(10, 6))
+    sns.boxplot(data=df, x='is_fraudulent', y='account_balance')
+    plt.title('Account Balance Before and After Fraud')
+    balance_plot = io.BytesIO()
+    plt.savefig(balance_plot, format='png')
+    plt.close()
+    balance_plot.seek(0)
+    balance_plot_url = base64.b64encode(balance_plot.getvalue()).decode()
+
+    # Client Risk Score Histogram
+    plt.figure(figsize=(10, 6))
+    sns.histplot(data=df, x='anomaly_score', bins=30)
+    plt.title('Client Risk Score Distribution')
+    risk_hist = io.BytesIO()
+    plt.savefig(risk_hist, format='png')
+    plt.close()
+    risk_hist.seek(0)
+    risk_hist_url = base64.b64encode(risk_hist.getvalue()).decode()
+
+    # Top Suspicious Clients Bar Chart
+    plt.figure(figsize=(12, 6))
+    top_suspicious = df[df['suspicious_flag'] == 1]['client_id'].value_counts().head(10)
+    sns.barplot(x=top_suspicious.index, y=top_suspicious.values)
+    plt.title('Top 10 Suspicious Clients')
+    plt.xticks(rotation=45)
+    top_clients = io.BytesIO()
+    plt.savefig(top_clients, format='png')
+    plt.close()
+    top_clients.seek(0)
+    top_clients_url = base64.b64encode(top_clients.getvalue()).decode()
+
+    # Update context with new plot URLs
+    context.update({
+        'scatter_plot_url': scatter_plot_url,
+        'heatmap_plot_url': heatmap_plot_url,
+        'pie_plot_url': pie_plot_url,
+        'balance_plot_url': balance_plot_url,
+        'risk_hist_url': risk_hist_url,
+        'top_clients_url': top_clients_url
+    })
+
+    return render(request, 'predictor/reports.html', context)

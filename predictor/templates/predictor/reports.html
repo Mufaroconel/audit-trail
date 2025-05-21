@@ -122,6 +122,24 @@
         <h3>Box Plot of Transaction Amounts by Transaction Type</h3>
         <img src="data:image/png;base64,{{ box_plot_url }}" alt="Box Plot">
     </div>
+
+    <!-- Visualization 4a: Account Balance Before and After Fraud -->
+    <div class="report-item">
+        <h3>Account Balance Before and After Fraud</h3>
+        <img src="data:image/png;base64,{{ fraud_balance_plot_url }}" alt="Fraud Balance Plot">
+    </div>
+
+    <!-- Visualization 4b: Client Risk Score Histogram -->
+    <div class="report-item">
+        <h3>Client Risk Score Histogram</h3>
+        <img src="data:image/png;base64,{{ risk_score_histogram_url }}" alt="Risk Score Histogram">
+    </div>
+
+    <!-- Visualization 4c: Top Suspicious Clients Bar Chart -->
+    <div class="report-item">
+        <h3>Top Suspicious Clients</h3>
+        <img src="data:image/png;base64,{{ top_clients_bar_chart_url }}" alt="Top Clients Bar Chart">
+    </div>
 </div>
 </body>
 </html>
